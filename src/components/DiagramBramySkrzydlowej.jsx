@@ -1,42 +1,55 @@
 export default function DiagramBramySkrzydlowej({ a, b, c, d, kat }) {
-  const label = (value, unit) => (value ? `${value}${unit}` : "");
+  const label = (letter, value) => (value ? `${letter} ${value}` : letter);
 
   return (
-    <svg viewBox="0 0 320 250" className="w-full max-w-xs mx-auto text-neutral-400">
-      <line x1="20" y1="228" x2="300" y2="228" stroke="currentColor" strokeWidth="1.5" />
+    <svg viewBox="0 0 300 210" className="w-full max-w-[280px] mx-auto text-neutral-400">
+      {/* ground */}
+      <line x1="15" y1="190" x2="290" y2="190" stroke="currentColor" strokeWidth="1.5" />
 
-      <rect x="92" y="40" width="46" height="188" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      {/* post */}
+      <rect x="140" y="20" width="44" height="170" fill="none" stroke="currentColor" strokeWidth="1.5" />
 
-      <line x1="92" y1="24" x2="138" y2="24" stroke="currentColor" strokeWidth="1" />
-      <line x1="92" y1="19" x2="92" y2="29" stroke="currentColor" strokeWidth="1" />
-      <line x1="138" y1="19" x2="138" y2="29" stroke="currentColor" strokeWidth="1" />
-      <text x="115" y="14" textAnchor="middle" fontSize="11" fill="currentColor">
-        A {label(a, "")}
+      {/* A: post width, top */}
+      <line x1="140" y1="12" x2="184" y2="12" stroke="currentColor" strokeWidth="1" />
+      <line x1="140" y1="8" x2="140" y2="16" stroke="currentColor" strokeWidth="1" />
+      <line x1="184" y1="8" x2="184" y2="16" stroke="currentColor" strokeWidth="1" />
+      <text x="162" y="6" textAnchor="middle" fontSize="11" fill="currentColor">
+        {label("A", a)}
       </text>
 
-      <line x1="70" y1="120" x2="70" y2="228" stroke="currentColor" strokeWidth="1" />
-      <line x1="65" y1="120" x2="75" y2="120" stroke="currentColor" strokeWidth="1" />
-      <line x1="65" y1="228" x2="75" y2="228" stroke="currentColor" strokeWidth="1" />
-      <text x="50" y="178" fontSize="11" fill="currentColor">
-        B {label(b, "")}
+      {/* B: ground to bracket top */}
+      <line x1="112" y1="100" x2="112" y2="190" stroke="currentColor" strokeWidth="1" />
+      <line x1="107" y1="100" x2="117" y2="100" stroke="currentColor" strokeWidth="1" />
+      <line x1="107" y1="190" x2="117" y2="190" stroke="currentColor" strokeWidth="1" />
+      <text x="103" y="112" textAnchor="end" fontSize="11" fill="currentColor">
+        {label("B", b)}
       </text>
 
-      <line x1="52" y1="150" x2="52" y2="228" stroke="currentColor" strokeWidth="1" />
-      <line x1="47" y1="150" x2="57" y2="150" stroke="currentColor" strokeWidth="1" />
-      <line x1="47" y1="228" x2="57" y2="228" stroke="currentColor" strokeWidth="1" />
-      <text x="32" y="193" fontSize="11" fill="currentColor">
-        C {label(c, "")}
+      {/* C: ground to arm pivot, nested inside B */}
+      <line x1="88" y1="132" x2="88" y2="190" stroke="currentColor" strokeWidth="1" />
+      <line x1="83" y1="132" x2="93" y2="132" stroke="currentColor" strokeWidth="1" />
+      <line x1="83" y1="190" x2="93" y2="190" stroke="currentColor" strokeWidth="1" />
+      <text x="79" y="184" textAnchor="end" fontSize="11" fill="currentColor">
+        {label("C", c)}
       </text>
 
-      <circle cx="138" cy="150" r="3" fill="currentColor" />
-      <line x1="138" y1="150" x2="262" y2="128" stroke="currentColor" strokeWidth="2" />
-      <text x="205" y="115" textAnchor="middle" fontSize="11" fill="currentColor">
-        D {label(d, "")}
+      {/* arm pivot + arm */}
+      <circle cx="140" cy="132" r="3" fill="currentColor" />
+      <line x1="140" y1="132" x2="252" y2="110" stroke="currentColor" strokeWidth="2" />
+      <text x="196" y="98" textAnchor="middle" fontSize="11" fill="currentColor">
+        {label("D", d)}
       </text>
 
-      <path d="M 262 128 A 132 132 0 0 1 178 228" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 3" />
-      <text x="228" y="198" fontSize="11" fill="currentColor">
-        α {label(kat, "°")}
+      {/* swing arc + angle */}
+      <path
+        d="M 252 110 A 122 122 0 0 1 200 190"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1"
+        strokeDasharray="4 3"
+      />
+      <text x="222" y="168" fontSize="11" fill="currentColor">
+        {label("α", kat ? `${kat}°` : "")}
       </text>
     </svg>
   );
