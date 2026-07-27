@@ -5,12 +5,14 @@ import RejestrZlecen from "./components/RejestrZlecen";
 import Wyceny from "./components/Wyceny";
 import Kalendarz from "./components/Kalendarz";
 import Zapytania from "./components/Zapytania";
+import CzesciZamienne from "./components/CzesciZamienne";
 
 const TABS = [
   { id: "rejestr", label: "Rejestr zleceń" },
   { id: "wyceny", label: "Wyceny" },
   { id: "kalendarz", label: "Kalendarz" },
   { id: "zapytania", label: "Zapytania" },
+  { id: "czesci", label: "Części zamienne" },
 ];
 
 export default function App() {
@@ -76,6 +78,7 @@ export default function App() {
         {tab === "wyceny" && <Wyceny />}
         {tab === "kalendarz" && <Kalendarz />}
         {tab === "zapytania" && <Zapytania />}
+        {tab === "czesci" && <CzesciZamienne />}
       </main>
     </div>
   );
