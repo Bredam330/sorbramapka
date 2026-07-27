@@ -87,19 +87,34 @@ export default function ZlecenieForm({ onClose, onSaved, zlecenie }) {
     setError("");
 
     let klientId;
-    const { data: existing } = await supabase
-      .from("klienci")
-      .select("id")
-      .eq("telefon", form.telefon.trim())
-      .maybeSingle();
+    const telefon = form.telefon.trim();
 
-    if (existing) {
-      klientId = existing.id;
-      await supabase.from("klienci").update({ adres: form.adres.trim() }).eq("id", klientId);
+    if (telefon) {
+      const { data: existing } = await supabase.from("klienci").select("id").eq("telefon", telefon).maybeSingle();
+
+      if (existing) {
+        klientId = existing.id;
+        await supabase.from("klienci").update({ adres: form.adres.trim(), telefon }).eq("id", klientId);
+      } else {
+        const { data: created, error: klientError } = await supabase
+          .from("klienci")
+          .insert({ telefon, adres: form.adres.trim() })
+          .select("id")
+          .single();
+        if (klientError) {
+          setError(klientError.message);
+          setSaving(false);
+          return;
+        }
+        klientId = created.id;
+      }
+    } else if (zlecenie?.klient_id) {
+      klientId = zlecenie.klient_id;
+      await supabase.from("klienci").update({ adres: form.adres.trim(), telefon: null }).eq("id", klientId);
     } else {
       const { data: created, error: klientError } = await supabase
         .from("klienci")
-        .insert({ telefon: form.telefon.trim(), adres: form.adres.trim() })
+        .insert({ adres: form.adres.trim() })
         .select("id")
         .single();
       if (klientError) {
@@ -168,9 +183,8 @@ export default function ZlecenieForm({ onClose, onSaved, zlecenie }) {
         </div>
 
         <input
-          required
           type="tel"
-          placeholder="Numer telefonu"
+          placeholder="Numer telefonu (opcjonalnie)"
           value={form.telefon}
           onChange={(e) => update("telefon", e.target.value)}
           className={inputClass}
