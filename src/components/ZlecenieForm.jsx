@@ -12,6 +12,7 @@ export default function ZlecenieForm({ onClose, onSaved }) {
     przychod: "",
     kosztCzesci: "",
     data: today(),
+    godzina: "",
     zaplacone: false,
   });
   const [saving, setSaving] = useState(false);
@@ -52,6 +53,7 @@ export default function ZlecenieForm({ onClose, onSaved }) {
     const { error: zlecenieError } = await supabase.from("zlecenia").insert({
       klient_id: klientId,
       data: form.data,
+      godzina: form.godzina || null,
       urzadzenie: form.urzadzenie.trim(),
       opis: form.opis.trim(),
       przychod: Number(form.przychod) || 0,
@@ -132,14 +134,25 @@ export default function ZlecenieForm({ onClose, onSaved }) {
           </div>
         </div>
 
-        <div>
-          <label className="text-xs text-neutral-400">Data</label>
-          <input
-            type="date"
-            value={form.data}
-            onChange={(e) => update("data", e.target.value)}
-            className={inputClass}
-          />
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs text-neutral-400">Data</label>
+            <input
+              type="date"
+              value={form.data}
+              onChange={(e) => update("data", e.target.value)}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-neutral-400">Godzina</label>
+            <input
+              type="time"
+              value={form.godzina}
+              onChange={(e) => update("godzina", e.target.value)}
+              className={inputClass}
+            />
+          </div>
         </div>
 
         <label className="flex items-center gap-2 text-sm text-neutral-300">

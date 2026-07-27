@@ -117,6 +117,7 @@ export default function RejestrZlecen() {
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-neutral-500 shrink-0">
                       {new Date(z.data).toLocaleDateString("pl-PL", { day: "2-digit", month: "short" })}
+                      {z.godzina && ` ${z.godzina.slice(0, 5)}`}
                     </span>
                     <button onClick={() => toggleZaplacone(z)} className="font-medium truncate hover:underline">
                       {z.klienci?.nazwa} {z.zaplacone ? "✓" : ""}

@@ -104,7 +104,10 @@ export default function Kalendarz() {
           <div className="space-y-2">
             {dayEntries.map((z) => (
               <div key={z.id} className="bg-neutral-900 border border-neutral-800 rounded-xl p-3">
-                <p className="font-medium">{z.klienci?.nazwa}</p>
+                <div className="flex items-center gap-2">
+                  {z.godzina && <span className="text-xs text-neutral-500">{z.godzina.slice(0, 5)}</span>}
+                  <p className="font-medium">{z.klienci?.nazwa}</p>
+                </div>
                 <p className="text-xs text-neutral-500">{z.urzadzenie} {z.opis}</p>
                 <p className="text-xs text-accent mt-1">{formatPLN(z.przychod)}</p>
               </div>
