@@ -8,12 +8,15 @@ import Zapytania from "./components/Zapytania";
 import CzesciZamienne from "./components/CzesciZamienne";
 import Podsumowanie from "./components/Podsumowanie";
 
-const TABS = [
-  { id: "rejestr", label: "Rejestr zleceń" },
-  { id: "zamkniete", label: "Zlecenia zamknięte" },
-  { id: "podsumowanie", label: "Podsumowanie" },
-  { id: "wyceny", label: "Wyceny" },
+const MAIN_TABS = [
+  { id: "rejestr", label: "Zlecenia" },
   { id: "kalendarz", label: "Kalendarz" },
+  { id: "podsumowanie", label: "Podsumowanie" },
+];
+
+const MENU_TABS = [
+  { id: "zamkniete", label: "Zlecenia zamknięte" },
+  { id: "wyceny", label: "Wyceny" },
   { id: "zapytania", label: "Zapytania" },
   { id: "czesci", label: "Części zamienne" },
 ];
@@ -21,6 +24,8 @@ const TABS = [
 export default function App() {
   const [session, setSession] = useState(undefined);
   const [tab, setTab] = useState("rejestr");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const activeMenuTab = MENU_TABS.find((t) => t.id === tab);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
@@ -59,8 +64,8 @@ export default function App() {
             Wyloguj
           </button>
         </div>
-        <nav className="max-w-3xl mx-auto px-4 flex gap-1 overflow-x-auto">
-          {TABS.map((t) => (
+        <nav className="max-w-3xl mx-auto px-4 flex items-center gap-1">
+          {MAIN_TABS.map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
@@ -73,6 +78,39 @@ export default function App() {
               {t.label}
             </button>
           ))}
+
+          <div className="relative ml-auto">
+            <button
+              onClick={() => setMenuOpen((o) => !o)}
+              className={`px-3 py-2 text-sm border-b-2 transition-colors ${
+                activeMenuTab ? "border-accent text-accent" : "border-transparent text-neutral-400 hover:text-neutral-200"
+              }`}
+            >
+              {activeMenuTab ? activeMenuTab.label : "☰"}
+            </button>
+
+            {menuOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+                <div className="absolute right-0 top-full mt-1 w-48 bg-neutral-900 border border-neutral-800 rounded-lg shadow-lg shadow-black/40 py-1 z-20">
+                  {MENU_TABS.map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => {
+                        setTab(t.id);
+                        setMenuOpen(false);
+                      }}
+                      className={`block w-full text-left px-3 py-2 text-sm ${
+                        tab === t.id ? "text-accent" : "text-neutral-300 hover:bg-neutral-800"
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </nav>
       </header>
 
