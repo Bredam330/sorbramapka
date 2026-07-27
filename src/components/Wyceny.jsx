@@ -1,0 +1,171 @@
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
+import { formatPLN } from "../lib/format";
+
+const STATUSY = {
+  wyslana: { label: "Wysłana", className: "bg-neutral-700 text-neutral-200" },
+  zaakceptowana: { label: "Zaakceptowana", className: "bg-green-700/30 text-green-400" },
+  odrzucona: { label: "Odrzucona", className: "bg-red-700/30 text-red-400" },
+};
+
+const emptyForm = { nazwaKlienta: "", tresc: "", kwota: "" };
+
+export default function Wyceny() {
+  const [wyceny, setWyceny] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
+
+  async function load() {
+    setLoading(true);
+    const { data } = await supabase
+      .from("wyceny")
+      .select("*, klienci(nazwa)")
+      .order("data", { ascending: false });
+    setWyceny(data ?? []);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setSaving(true);
+
+    let klientId = null;
+    if (form.nazwaKlienta.trim()) {
+      const { data: existing } = await supabase
+        .from("klienci")
+        .select("id")
+        .eq("nazwa", form.nazwaKlienta.trim())
+        .maybeSingle();
+      klientId = existing?.id;
+      if (!klientId) {
+        const { data: created } = await supabase
+          .from("klienci")
+          .insert({ nazwa: form.nazwaKlienta.trim() })
+          .select("id")
+          .single();
+        klientId = created?.id;
+      }
+    }
+
+    await supabase.from("wyceny").insert({
+      klient_id: klientId,
+      tresc: form.tresc.trim(),
+      kwota: Number(form.kwota) || 0,
+    });
+
+    setSaving(false);
+    setShowForm(false);
+    setForm(emptyForm);
+    load();
+  }
+
+  async function setStatus(id, status) {
+    await supabase.from("wyceny").update({ status }).eq("id", id);
+    load();
+  }
+
+  async function utworzZlecenie(w) {
+    await supabase.from("zlecenia").insert({
+      klient_id: w.klient_id,
+      opis: w.tresc,
+      przychod: w.kwota,
+      koszt_czesci: 0,
+    });
+    alert("Utworzono zlecenie w Rejestrze zleceń.");
+  }
+
+  const inputClass =
+    "w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent";
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-neutral-400 uppercase tracking-wide">Wyceny</p>
+        <button
+          onClick={() => setShowForm((s) => !s)}
+          className="text-sm bg-accent hover:bg-orange-600 transition-colors rounded-lg px-3 py-1.5 font-medium"
+        >
+          + Nowa wycena
+        </button>
+      </div>
+
+      {showForm && (
+        <form onSubmit={handleSubmit} className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 space-y-3">
+          <input
+            required
+            placeholder="Klient"
+            value={form.nazwaKlienta}
+            onChange={(e) => setForm((f) => ({ ...f, nazwaKlienta: e.target.value }))}
+            className={inputClass}
+          />
+          <input
+            placeholder="Zakres prac"
+            value={form.tresc}
+            onChange={(e) => setForm((f) => ({ ...f, tresc: e.target.value }))}
+            className={inputClass}
+          />
+          <input
+            type="number"
+            step="0.01"
+            placeholder="Kwota"
+            value={form.kwota}
+            onChange={(e) => setForm((f) => ({ ...f, kwota: e.target.value }))}
+            className={inputClass}
+          />
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full bg-accent hover:bg-orange-600 transition-colors rounded-lg py-2 font-medium disabled:opacity-50"
+          >
+            {saving ? "Zapisywanie..." : "Zapisz wycenę"}
+          </button>
+        </form>
+      )}
+
+      {loading && <p className="text-sm text-neutral-500">Ładowanie...</p>}
+      {!loading && wyceny.length === 0 && <p className="text-sm text-neutral-500">Brak wycen.</p>}
+
+      <div className="space-y-2">
+        {wyceny.map((w) => (
+          <div key={w.id} className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 space-y-2">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="font-medium truncate">{w.klienci?.nazwa ?? "Bez klienta"}</p>
+                <p className="text-xs text-neutral-500 truncate">{w.tresc}</p>
+              </div>
+              <span className={`text-[10px] px-2 py-1 rounded shrink-0 ${STATUSY[w.status].className}`}>
+                {STATUSY[w.status].label}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold">{formatPLN(w.kwota)}</span>
+              <div className="flex gap-2 text-xs">
+                {w.status === "wyslana" && (
+                  <>
+                    <button onClick={() => setStatus(w.id, "zaakceptowana")} className="text-green-400 hover:underline">
+                      Zaakceptowana
+                    </button>
+                    <button onClick={() => setStatus(w.id, "odrzucona")} className="text-red-400 hover:underline">
+                      Odrzucona
+                    </button>
+                  </>
+                )}
+                {w.status === "zaakceptowana" && (
+                  <button onClick={() => utworzZlecenie(w)} className="text-accent hover:underline">
+                    Utwórz zlecenie
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
