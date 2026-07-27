@@ -30,7 +30,7 @@ export default function Kalendarz() {
       const { start, end } = monthRange(year, month);
       const { data } = await supabase
         .from("zlecenia")
-        .select("*, klienci(telefon)")
+        .select("*, klienci(telefon, adres)")
         .gte("data", start)
         .lt("data", end);
       setZlecenia(data ?? []);
@@ -108,6 +108,7 @@ export default function Kalendarz() {
                   {z.godzina && <span className="text-xs text-neutral-500">{z.godzina.slice(0, 5)}</span>}
                   <p className="font-medium">{z.klienci?.telefon}</p>
                 </div>
+                {z.klienci?.adres && <p className="text-sm text-neutral-300">{z.klienci.adres}</p>}
                 <p className="text-xs text-neutral-500">{z.urzadzenie} {z.opis}</p>
                 <p className="text-xs text-accent mt-1">{formatPLN(z.przychod)}</p>
               </div>
