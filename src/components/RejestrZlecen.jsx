@@ -62,13 +62,6 @@ export default function RejestrZlecen() {
     load();
   }
 
-  const przychod = zlecenia.reduce((sum, z) => sum + Number(z.przychod), 0);
-  const koszty = zlecenia.reduce((sum, z) => sum + Number(z.koszt_czesci), 0);
-  const zysk = przychod - koszty;
-  const doZaplaty = zlecenia
-    .filter((z) => !z.zaplacone)
-    .reduce((sum, z) => sum + Number(z.przychod), 0);
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -84,26 +77,6 @@ export default function RejestrZlecen() {
           </button>
         </div>
         <span className="text-xs text-neutral-400">{zlecenia.length} zleceń</span>
-      </div>
-
-      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 space-y-3">
-        <div>
-          <p className="text-xs text-neutral-400 uppercase tracking-wide">Zysk</p>
-          <p className="text-3xl font-bold text-accent">{formatPLN(zysk)}</p>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-neutral-800/60 rounded-xl p-3">
-            <p className="text-xs text-neutral-400 uppercase tracking-wide">Przychód</p>
-            <p className="font-semibold">{formatPLN(przychod)}</p>
-          </div>
-          <div className="bg-neutral-800/60 rounded-xl p-3">
-            <p className="text-xs text-neutral-400 uppercase tracking-wide">Części</p>
-            <p className="font-semibold">{formatPLN(koszty)}</p>
-          </div>
-        </div>
-        {doZaplaty > 0 && (
-          <p className="text-sm text-accent">Do zapłaty: {formatPLN(doZaplaty)}</p>
-        )}
       </div>
 
       <div>

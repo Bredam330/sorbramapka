@@ -6,9 +6,11 @@ import Wyceny from "./components/Wyceny";
 import Kalendarz from "./components/Kalendarz";
 import Zapytania from "./components/Zapytania";
 import CzesciZamienne from "./components/CzesciZamienne";
+import Podsumowanie from "./components/Podsumowanie";
 
 const TABS = [
   { id: "rejestr", label: "Rejestr zleceń" },
+  { id: "podsumowanie", label: "Podsumowanie" },
   { id: "wyceny", label: "Wyceny" },
   { id: "kalendarz", label: "Kalendarz" },
   { id: "zapytania", label: "Zapytania" },
@@ -75,6 +77,7 @@ export default function App() {
 
       <main className="max-w-3xl mx-auto px-4 py-4">
         {tab === "rejestr" && <RejestrZlecen />}
+        {tab === "podsumowanie" && <Podsumowanie />}
         {tab === "wyceny" && <Wyceny />}
         {tab === "kalendarz" && <Kalendarz />}
         {tab === "zapytania" && <Zapytania />}
