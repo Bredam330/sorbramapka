@@ -27,12 +27,13 @@ export default function Wyceny() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [generatingId, setGeneratingId] = useState(null);
 
   async function load() {
     setLoading(true);
     const { data } = await supabase
       .from("wyceny")
-      .select("*, klienci(telefon)")
+      .select("*, klienci(telefon, adres)")
       .order("data", { ascending: false });
     setWyceny(data ?? []);
     setLoading(false);
@@ -84,6 +85,13 @@ export default function Wyceny() {
   async function setStatus(id, status) {
     await supabase.from("wyceny").update({ status }).eq("id", id);
     load();
+  }
+
+  async function pobierzPdf(w) {
+    setGeneratingId(w.id);
+    const { generujPdfWyceny } = await import("../lib/pdf");
+    await generujPdfWyceny(w);
+    setGeneratingId(null);
   }
 
   async function utworzZlecenie(w) {
@@ -238,7 +246,14 @@ export default function Wyceny() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold">{formatPLN(w.kwota)}</span>
-              <div className="flex gap-2 text-xs">
+              <div className="flex gap-2 text-xs items-center">
+                <button
+                  onClick={() => pobierzPdf(w)}
+                  disabled={generatingId === w.id}
+                  className="text-neutral-300 hover:text-neutral-100 disabled:opacity-50"
+                >
+                  {generatingId === w.id ? "Generuję..." : "PDF"}
+                </button>
                 {w.status === "wyslana" && (
                   <>
                     <button onClick={() => setStatus(w.id, "zaakceptowana")} className="text-green-400 hover:underline">
