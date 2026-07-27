@@ -16,11 +16,8 @@ export default function DiagramBramySkrzydlowej({ a, b, c, d, kat }) {
       <line x1="20" y1="210" x2="300" y2="210" stroke="currentColor" strokeWidth="1.5" />
       <rect x="20" y="210" width="280" height="12" fill="url(#hatch)" />
 
-      {/* gate leaf profile (block), hatched to read as solid section */}
+      {/* gate leaf / post profile, hatched to read as solid section */}
       <rect x="150" y="20" width="50" height="50" fill="url(#hatch)" stroke="currentColor" strokeWidth="1.5" />
-
-      {/* mounting bracket from block down to pivot */}
-      <rect x="158" y="70" width="14" height="70" fill="none" stroke="currentColor" strokeWidth="1" />
 
       {/* A: block width, top */}
       <line x1="150" y1="8" x2="150" y2="16" stroke="currentColor" strokeWidth="1" />
@@ -30,61 +27,58 @@ export default function DiagramBramySkrzydlowej({ a, b, c, d, kat }) {
         {label("A", a)}
       </text>
 
-      {/* B: top of block to pivot */}
-      <line x1="112" y1="20" x2="128" y2="20" stroke="currentColor" strokeWidth="1" />
-      <line x1="112" y1="140" x2="128" y2="140" stroke="currentColor" strokeWidth="1" />
-      <line x1="120" y1="22" x2="120" y2="138" stroke="currentColor" strokeWidth="1" markerStart="url(#dimArrow)" markerEnd="url(#dimArrow)" />
-      <text x="111" y="45" textAnchor="end" fontSize="11" fill="currentColor">
+      {/* B: ground to top of post */}
+      <line x1="104" y1="20" x2="120" y2="20" stroke="currentColor" strokeWidth="1" />
+      <line x1="104" y1="210" x2="120" y2="210" stroke="currentColor" strokeWidth="1" />
+      <line x1="112" y1="22" x2="112" y2="208" stroke="currentColor" strokeWidth="1" markerStart="url(#dimArrow)" markerEnd="url(#dimArrow)" />
+      <text x="103" y="115" textAnchor="end" fontSize="11" fill="currentColor">
         {label("B", b)}
       </text>
 
-      {/* C: bottom of block to pivot, nested */}
-      <line x1="128" y1="70" x2="144" y2="70" stroke="currentColor" strokeWidth="1" />
-      <line x1="128" y1="140" x2="144" y2="140" stroke="currentColor" strokeWidth="1" />
-      <line x1="136" y1="72" x2="136" y2="138" stroke="currentColor" strokeWidth="1" markerStart="url(#dimArrow)" markerEnd="url(#dimArrow)" />
-      <text x="127" y="130" textAnchor="end" fontSize="11" fill="currentColor">
+      {/* C: ground to arm pivot, mounted near the bottom of the post */}
+      <line x1="122" y1="85" x2="138" y2="85" stroke="currentColor" strokeWidth="1" />
+      <line x1="122" y1="210" x2="138" y2="210" stroke="currentColor" strokeWidth="1" />
+      <line x1="130" y1="87" x2="130" y2="208" stroke="currentColor" strokeWidth="1" markerStart="url(#dimArrow)" markerEnd="url(#dimArrow)" />
+      <text x="121" y="150" textAnchor="end" fontSize="11" fill="currentColor">
         {label("C", c)}
       </text>
 
-      {/* pivot (hinge plate + bolt) */}
-      <circle cx="165" cy="140" r="6" fill="none" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="165" cy="140" r="2" fill="currentColor" />
+      {/* arm, angled upward from the pivot at the base of the post to the leaf bracket */}
+      <line x1="150" y1="85" x2="250" y2="45" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+      <line x1="181" y1="76" x2="189" y2="66" stroke="#0a0a0a" strokeWidth="1.5" />
+      <line x1="211" y1="64" x2="219" y2="54" stroke="#0a0a0a" strokeWidth="1.5" />
 
-      {/* arm with adjustment slots */}
-      <line x1="171" y1="140" x2="259" y2="140" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-      <line x1="195" y1="136" x2="195" y2="144" stroke="#0a0a0a" strokeWidth="1.5" />
-      <line x1="191" y1="140" x2="199" y2="140" stroke="#0a0a0a" strokeWidth="1.5" />
-      <line x1="225" y1="136" x2="225" y2="144" stroke="#0a0a0a" strokeWidth="1.5" />
-      <line x1="221" y1="140" x2="229" y2="140" stroke="#0a0a0a" strokeWidth="1.5" />
+      {/* pivot (hinge plate + bolt), mounted on the post near its base */}
+      <circle cx="150" cy="85" r="6" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="150" cy="85" r="2" fill="currentColor" />
 
-      {/* knuckle at gate end */}
-      <circle cx="265" cy="140" r="7" fill="none" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="265" cy="140" r="2" fill="currentColor" />
+      {/* knuckle at the leaf bracket */}
+      <circle cx="250" cy="45" r="7" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="250" cy="45" r="2" fill="currentColor" />
 
-      {/* D: arm length, horizontal above the arm */}
-      <line x1="171" y1="118" x2="171" y2="126" stroke="currentColor" strokeWidth="1" />
-      <line x1="265" y1="118" x2="265" y2="126" stroke="currentColor" strokeWidth="1" />
-      <line x1="173" y1="122" x2="263" y2="122" stroke="currentColor" strokeWidth="1" markerStart="url(#dimArrow)" markerEnd="url(#dimArrow)" />
-      <text x="217" y="114" textAnchor="middle" fontSize="11" fill="currentColor">
+      {/* D: arm length, dimension line offset parallel to the arm */}
+      <line x1="150" y1="85" x2="144.8" y2="72" stroke="currentColor" strokeWidth="1" />
+      <line x1="250" y1="45" x2="244.8" y2="32" stroke="currentColor" strokeWidth="1" />
+      <line x1="144.8" y1="72" x2="244.8" y2="32" stroke="currentColor" strokeWidth="1" markerStart="url(#dimArrow)" markerEnd="url(#dimArrow)" />
+      <text x="193" y="42" textAnchor="middle" fontSize="11" fill="currentColor">
         {label("D", d)}
       </text>
 
-      {/* swing arc to closed-leaf position */}
+      {/* swing arc to the closed-leaf ghost position */}
       <path
-        d="M 265 140 A 140 140 0 0 1 200 210"
+        d="M 250 45 A 175 175 0 0 1 216 210"
         fill="none"
         stroke="currentColor"
         strokeWidth="1"
         strokeDasharray="4 3"
       />
-      {/* angle arc at the pivot */}
-      <path d="M 205 140 A 40 40 0 0 1 191 176" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
-      <text x="222" y="168" fontSize="11" fill="currentColor">
+      <path d="M 235 85 A 42 42 0 0 1 220 122" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
+      <text x="245" y="110" fontSize="11" fill="currentColor">
         {label("α", kat ? `${kat}°` : "")}
       </text>
 
       {/* closed-leaf ghost position */}
-      <rect x="196" y="142" width="8" height="68" fill="url(#hatch)" stroke="currentColor" strokeWidth="1" strokeDasharray="3 2" />
+      <rect x="208" y="47" width="8" height="163" fill="url(#hatch)" stroke="currentColor" strokeWidth="1" strokeDasharray="3 2" />
     </svg>
   );
 }
