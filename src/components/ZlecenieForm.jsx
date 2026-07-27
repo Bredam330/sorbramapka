@@ -196,31 +196,31 @@ export default function ZlecenieForm({ onClose, onSaved, zlecenie }) {
 
         <div className="bg-neutral-800/60 rounded-xl p-3 space-y-2">
           <label className="text-xs text-neutral-400">Użyte części zamienne</label>
+          <select
+            value={wybranaCzescId}
+            onChange={(e) => setWybranaCzescId(e.target.value)}
+            className={`${inputClass} w-full`}
+          >
+            <option value="">Wybierz część...</option>
+            {dostepneCzesci.map((cz) => (
+              <option key={cz.id} value={cz.id}>
+                {cz.nazwa} (stan: {cz.ilosc})
+              </option>
+            ))}
+          </select>
           <div className="flex gap-2">
-            <select
-              value={wybranaCzescId}
-              onChange={(e) => setWybranaCzescId(e.target.value)}
-              className={inputClass}
-            >
-              <option value="">Wybierz część...</option>
-              {dostepneCzesci.map((cz) => (
-                <option key={cz.id} value={cz.id}>
-                  {cz.nazwa} (stan: {cz.ilosc})
-                </option>
-              ))}
-            </select>
             <input
               type="number"
               min="1"
               value={wybranaIlosc}
               onChange={(e) => setWybranaIlosc(e.target.value)}
-              className={`${inputClass} w-16 shrink-0`}
+              className={`${inputClass} w-20 min-w-0 shrink-0`}
             />
             <button
               type="button"
               onClick={dodajCzesc}
               disabled={!wybranaCzescId}
-              className="shrink-0 bg-accent hover:bg-orange-600 transition-colors rounded-lg px-3 text-sm font-medium disabled:opacity-50"
+              className="flex-1 bg-accent hover:bg-orange-600 transition-colors rounded-lg px-3 text-sm font-medium disabled:opacity-50"
             >
               Dodaj
             </button>
