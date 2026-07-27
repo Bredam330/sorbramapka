@@ -7,7 +7,7 @@ export default function ZlecenieForm({ onClose, onSaved, zlecenie }) {
   const [form, setForm] = useState(
     zlecenie
       ? {
-          nazwaKlienta: zlecenie.klienci?.nazwa ?? "",
+          telefon: zlecenie.klienci?.telefon ?? "",
           adres: zlecenie.klienci?.adres ?? "",
           urzadzenie: zlecenie.urzadzenie ?? "",
           opis: zlecenie.opis ?? "",
@@ -18,7 +18,7 @@ export default function ZlecenieForm({ onClose, onSaved, zlecenie }) {
           zaplacone: zlecenie.zaplacone,
         }
       : {
-          nazwaKlienta: "",
+          telefon: "",
           adres: "",
           urzadzenie: "",
           opis: "",
@@ -45,7 +45,7 @@ export default function ZlecenieForm({ onClose, onSaved, zlecenie }) {
     const { data: existing } = await supabase
       .from("klienci")
       .select("id")
-      .eq("nazwa", form.nazwaKlienta.trim())
+      .eq("telefon", form.telefon.trim())
       .maybeSingle();
 
     if (existing) {
@@ -54,7 +54,7 @@ export default function ZlecenieForm({ onClose, onSaved, zlecenie }) {
     } else {
       const { data: created, error: klientError } = await supabase
         .from("klienci")
-        .insert({ nazwa: form.nazwaKlienta.trim(), adres: form.adres.trim() })
+        .insert({ telefon: form.telefon.trim(), adres: form.adres.trim() })
         .select("id")
         .single();
       if (klientError) {
@@ -106,9 +106,10 @@ export default function ZlecenieForm({ onClose, onSaved, zlecenie }) {
 
         <input
           required
-          placeholder="Klient (imię i nazwisko / firma)"
-          value={form.nazwaKlienta}
-          onChange={(e) => update("nazwaKlienta", e.target.value)}
+          type="tel"
+          placeholder="Numer telefonu"
+          value={form.telefon}
+          onChange={(e) => update("telefon", e.target.value)}
           className={inputClass}
         />
         <input

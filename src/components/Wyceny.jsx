@@ -8,7 +8,7 @@ const STATUSY = {
   odrzucona: { label: "Odrzucona", className: "bg-red-700/30 text-red-400" },
 };
 
-const emptyForm = { nazwaKlienta: "", tresc: "", kwota: "" };
+const emptyForm = { telefon: "", tresc: "", kwota: "" };
 
 export default function Wyceny() {
   const [wyceny, setWyceny] = useState([]);
@@ -21,7 +21,7 @@ export default function Wyceny() {
     setLoading(true);
     const { data } = await supabase
       .from("wyceny")
-      .select("*, klienci(nazwa)")
+      .select("*, klienci(telefon)")
       .order("data", { ascending: false });
     setWyceny(data ?? []);
     setLoading(false);
@@ -36,17 +36,17 @@ export default function Wyceny() {
     setSaving(true);
 
     let klientId = null;
-    if (form.nazwaKlienta.trim()) {
+    if (form.telefon.trim()) {
       const { data: existing } = await supabase
         .from("klienci")
         .select("id")
-        .eq("nazwa", form.nazwaKlienta.trim())
+        .eq("telefon", form.telefon.trim())
         .maybeSingle();
       klientId = existing?.id;
       if (!klientId) {
         const { data: created } = await supabase
           .from("klienci")
-          .insert({ nazwa: form.nazwaKlienta.trim() })
+          .insert({ telefon: form.telefon.trim() })
           .select("id")
           .single();
         klientId = created?.id;
@@ -99,9 +99,10 @@ export default function Wyceny() {
         <form onSubmit={handleSubmit} className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 space-y-3">
           <input
             required
-            placeholder="Klient"
-            value={form.nazwaKlienta}
-            onChange={(e) => setForm((f) => ({ ...f, nazwaKlienta: e.target.value }))}
+            type="tel"
+            placeholder="Numer telefonu"
+            value={form.telefon}
+            onChange={(e) => setForm((f) => ({ ...f, telefon: e.target.value }))}
             className={inputClass}
           />
           <input
@@ -136,7 +137,7 @@ export default function Wyceny() {
           <div key={w.id} className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 space-y-2">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <p className="font-medium truncate">{w.klienci?.nazwa ?? "Bez klienta"}</p>
+                <p className="font-medium truncate">{w.klienci?.telefon ?? "Bez klienta"}</p>
                 <p className="text-xs text-neutral-500 truncate">{w.tresc}</p>
               </div>
               <span className={`text-[10px] px-2 py-1 rounded shrink-0 ${STATUSY[w.status].className}`}>

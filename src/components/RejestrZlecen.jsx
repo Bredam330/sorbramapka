@@ -23,7 +23,7 @@ export default function RejestrZlecen() {
     const { start, end } = monthRange(year, month);
     const { data } = await supabase
       .from("zlecenia")
-      .select("*, klienci(nazwa, adres)")
+      .select("*, klienci(telefon, adres)")
       .gte("data", start)
       .lt("data", end)
       .order("data", { ascending: false });
@@ -131,7 +131,7 @@ export default function RejestrZlecen() {
                       }}
                       className="font-medium truncate hover:underline"
                     >
-                      {z.klienci?.nazwa} {z.zaplacone ? "✓" : ""}
+                      {z.klienci?.telefon} {z.zaplacone ? "✓" : ""}
                     </button>
                     {!z.zaplacone && (
                       <span className="text-[10px] bg-accent/20 text-accent px-1.5 py-0.5 rounded shrink-0">
