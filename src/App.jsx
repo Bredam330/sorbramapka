@@ -35,7 +35,10 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100 pb-24">
-      <header className="border-b border-neutral-800 sticky top-0 bg-neutral-950/95 backdrop-blur z-10">
+      <header
+        className="border-b border-neutral-800 sticky top-0 bg-neutral-950/95 backdrop-blur z-10"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-xl">🔧</span>

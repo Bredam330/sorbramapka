@@ -3,18 +3,32 @@ import { supabase } from "../lib/supabase";
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export default function ZlecenieForm({ onClose, onSaved }) {
-  const [form, setForm] = useState({
-    nazwaKlienta: "",
-    adres: "",
-    urzadzenie: "",
-    opis: "",
-    przychod: "",
-    kosztCzesci: "",
-    data: today(),
-    godzina: "",
-    zaplacone: false,
-  });
+export default function ZlecenieForm({ onClose, onSaved, zlecenie }) {
+  const [form, setForm] = useState(
+    zlecenie
+      ? {
+          nazwaKlienta: zlecenie.klienci?.nazwa ?? "",
+          adres: zlecenie.klienci?.adres ?? "",
+          urzadzenie: zlecenie.urzadzenie ?? "",
+          opis: zlecenie.opis ?? "",
+          przychod: String(zlecenie.przychod ?? ""),
+          kosztCzesci: String(zlecenie.koszt_czesci ?? ""),
+          data: zlecenie.data,
+          godzina: zlecenie.godzina?.slice(0, 5) ?? "",
+          zaplacone: zlecenie.zaplacone,
+        }
+      : {
+          nazwaKlienta: "",
+          adres: "",
+          urzadzenie: "",
+          opis: "",
+          przychod: "",
+          kosztCzesci: "",
+          data: today(),
+          godzina: "",
+          zaplacone: false,
+        }
+  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -36,6 +50,7 @@ export default function ZlecenieForm({ onClose, onSaved }) {
 
     if (existing) {
       klientId = existing.id;
+      await supabase.from("klienci").update({ adres: form.adres.trim() }).eq("id", klientId);
     } else {
       const { data: created, error: klientError } = await supabase
         .from("klienci")
@@ -50,7 +65,7 @@ export default function ZlecenieForm({ onClose, onSaved }) {
       klientId = created.id;
     }
 
-    const { error: zlecenieError } = await supabase.from("zlecenia").insert({
+    const payload = {
       klient_id: klientId,
       data: form.data,
       godzina: form.godzina || null,
@@ -59,7 +74,11 @@ export default function ZlecenieForm({ onClose, onSaved }) {
       przychod: Number(form.przychod) || 0,
       koszt_czesci: Number(form.kosztCzesci) || 0,
       zaplacone: form.zaplacone,
-    });
+    };
+
+    const { error: zlecenieError } = zlecenie
+      ? await supabase.from("zlecenia").update(payload).eq("id", zlecenie.id)
+      : await supabase.from("zlecenia").insert(payload);
 
     setSaving(false);
     if (zlecenieError) {
@@ -79,7 +98,7 @@ export default function ZlecenieForm({ onClose, onSaved }) {
         className="w-full sm:max-w-md bg-neutral-900 border border-neutral-800 sm:rounded-2xl rounded-t-2xl p-5 space-y-3 max-h-[90vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between mb-1">
-          <h2 className="font-semibold">Nowe zlecenie</h2>
+          <h2 className="font-semibold">{zlecenie ? "Edytuj zlecenie" : "Nowe zlecenie"}</h2>
           <button type="button" onClick={onClose} className="text-neutral-400 hover:text-neutral-200">
             ✕
           </button>
@@ -172,7 +191,7 @@ export default function ZlecenieForm({ onClose, onSaved }) {
           disabled={saving}
           className="w-full bg-accent hover:bg-orange-600 transition-colors rounded-lg py-2 font-medium disabled:opacity-50"
         >
-          {saving ? "Zapisywanie..." : "Zapisz zlecenie"}
+          {saving ? "Zapisywanie..." : zlecenie ? "Zapisz zmiany" : "Zapisz zlecenie"}
         </button>
       </form>
     </div>

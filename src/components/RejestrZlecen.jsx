@@ -16,6 +16,7 @@ export default function RejestrZlecen() {
   const [zlecenia, setZlecenia] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState(null);
 
   async function load() {
     setLoading(true);
@@ -111,7 +112,11 @@ export default function RejestrZlecen() {
         )}
         <div className="space-y-2">
           {zlecenia.map((z) => (
-            <div key={z.id} className="bg-neutral-900 border border-neutral-800 rounded-xl p-3">
+            <div
+              key={z.id}
+              onClick={() => setEditing(z)}
+              className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 cursor-pointer hover:border-neutral-700"
+            >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
@@ -119,7 +124,13 @@ export default function RejestrZlecen() {
                       {new Date(z.data).toLocaleDateString("pl-PL", { day: "2-digit", month: "short" })}
                       {z.godzina && ` ${z.godzina.slice(0, 5)}`}
                     </span>
-                    <button onClick={() => toggleZaplacone(z)} className="font-medium truncate hover:underline">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleZaplacone(z);
+                      }}
+                      className="font-medium truncate hover:underline"
+                    >
                       {z.klienci?.nazwa} {z.zaplacone ? "✓" : ""}
                     </button>
                     {!z.zaplacone && (
@@ -135,7 +146,13 @@ export default function RejestrZlecen() {
                   </p>
                   {z.opis && <p className="text-xs text-neutral-500 truncate">{z.opis}</p>}
                 </div>
-                <button onClick={() => deleteZlecenie(z.id)} className="text-neutral-600 hover:text-red-400 shrink-0">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteZlecenie(z.id);
+                  }}
+                  className="text-neutral-600 hover:text-red-400 shrink-0"
+                >
                   🗑
                 </button>
               </div>
@@ -151,7 +168,8 @@ export default function RejestrZlecen() {
 
       <button
         onClick={() => setShowForm(true)}
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-accent hover:bg-orange-600 transition-colors rounded-full px-6 py-3 font-medium shadow-lg shadow-black/40"
+        style={{ bottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}
+        className="fixed left-1/2 -translate-x-1/2 bg-accent hover:bg-orange-600 transition-colors rounded-full px-6 py-3 font-medium shadow-lg shadow-black/40"
       >
         + Nowe zlecenie
       </button>
@@ -161,6 +179,17 @@ export default function RejestrZlecen() {
           onClose={() => setShowForm(false)}
           onSaved={() => {
             setShowForm(false);
+            load();
+          }}
+        />
+      )}
+
+      {editing && (
+        <ZlecenieForm
+          zlecenie={editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => {
+            setEditing(null);
             load();
           }}
         />
