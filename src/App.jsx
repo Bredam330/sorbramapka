@@ -10,6 +10,7 @@ import Podsumowanie from "./components/Podsumowanie";
 
 const TABS = [
   { id: "rejestr", label: "Rejestr zleceń" },
+  { id: "zamkniete", label: "Zlecenia zamknięte" },
   { id: "podsumowanie", label: "Podsumowanie" },
   { id: "wyceny", label: "Wyceny" },
   { id: "kalendarz", label: "Kalendarz" },
@@ -77,6 +78,7 @@ export default function App() {
 
       <main className="max-w-3xl mx-auto px-4 py-4">
         {tab === "rejestr" && <RejestrZlecen />}
+        {tab === "zamkniete" && <RejestrZlecen zamkniete />}
         {tab === "podsumowanie" && <Podsumowanie />}
         {tab === "wyceny" && <Wyceny />}
         {tab === "kalendarz" && <Kalendarz />}

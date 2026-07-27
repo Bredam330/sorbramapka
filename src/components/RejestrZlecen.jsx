@@ -10,7 +10,7 @@ function monthRange(year, month) {
   return { start, end };
 }
 
-export default function RejestrZlecen() {
+export default function RejestrZlecen({ zamkniete = false }) {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
@@ -27,6 +27,7 @@ export default function RejestrZlecen() {
       .select("*, klienci(telefon, adres)")
       .gte("data", start)
       .lt("data", end)
+      .eq("zaplacone", zamkniete)
       .order("data", { ascending: false });
     setZlecenia(data ?? []);
     setLoading(false);
@@ -34,7 +35,7 @@ export default function RejestrZlecen() {
 
   useEffect(() => {
     load();
-  }, [year, month]);
+  }, [year, month, zamkniete]);
 
   function changeMonth(delta) {
     let m = month + delta;
@@ -80,10 +81,14 @@ export default function RejestrZlecen() {
       </div>
 
       <div>
-        <p className="text-xs text-neutral-400 uppercase tracking-wide mb-2">Zlecenia</p>
+        <p className="text-xs text-neutral-400 uppercase tracking-wide mb-2">
+          {zamkniete ? "Zlecenia zamknięte" : "Zlecenia"}
+        </p>
         {loading && <p className="text-sm text-neutral-500">Ładowanie...</p>}
         {!loading && zlecenia.length === 0 && (
-          <p className="text-sm text-neutral-500">Brak zleceń w tym miesiącu.</p>
+          <p className="text-sm text-neutral-500">
+            {zamkniete ? "Brak zamkniętych zleceń w tym miesiącu." : "Brak zleceń w tym miesiącu."}
+          </p>
         )}
         <div className="space-y-2">
           {zlecenia.map((z) => (
@@ -141,13 +146,15 @@ export default function RejestrZlecen() {
         </div>
       </div>
 
-      <button
-        onClick={() => setShowForm(true)}
-        style={{ bottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}
-        className="fixed left-1/2 -translate-x-1/2 bg-accent hover:bg-orange-600 transition-colors rounded-full px-6 py-3 font-medium shadow-lg shadow-black/40"
-      >
-        + Nowe zlecenie
-      </button>
+      {!zamkniete && (
+        <button
+          onClick={() => setShowForm(true)}
+          style={{ bottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}
+          className="fixed left-1/2 -translate-x-1/2 bg-accent hover:bg-orange-600 transition-colors rounded-full px-6 py-3 font-medium shadow-lg shadow-black/40"
+        >
+          + Nowe zlecenie
+        </button>
+      )}
 
       {showForm && (
         <ZlecenieForm
