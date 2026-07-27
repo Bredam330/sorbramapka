@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { formatPLN } from "../lib/format";
+import { pobierzUzyteCzesci, przywrocStanDlaZlecenia, zapiszUzyteCzesci } from "../lib/czesci";
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -32,8 +34,51 @@ export default function ZlecenieForm({ onClose, onSaved, zlecenie }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  const [dostepneCzesci, setDostepneCzesci] = useState([]);
+  const [uzyteCzesci, setUzyteCzesci] = useState([]);
+  const [wybranaCzescId, setWybranaCzescId] = useState("");
+  const [wybranaIlosc, setWybranaIlosc] = useState("1");
+
+  useEffect(() => {
+    supabase
+      .from("czesci")
+      .select("id, nazwa, ilosc, cena_zakupu")
+      .order("nazwa", { ascending: true })
+      .then(({ data }) => setDostepneCzesci(data ?? []));
+
+    if (zlecenie) {
+      pobierzUzyteCzesci(zlecenie.id).then(setUzyteCzesci);
+    }
+  }, [zlecenie]);
+
+  useEffect(() => {
+    if (uzyteCzesci.length === 0) return;
+    const suma = uzyteCzesci.reduce((s, u) => s + u.ilosc * u.cena_zakupu, 0);
+    setForm((f) => ({ ...f, kosztCzesci: String(suma) }));
+  }, [uzyteCzesci]);
+
   function update(field, value) {
     setForm((f) => ({ ...f, [field]: value }));
+  }
+
+  function dodajCzesc() {
+    const cz = dostepneCzesci.find((c) => c.id === wybranaCzescId);
+    if (!cz) return;
+    const ilosc = Math.max(1, Number(wybranaIlosc) || 1);
+
+    setUzyteCzesci((lista) => {
+      const istniejacy = lista.find((u) => u.czesc_id === cz.id);
+      if (istniejacy) {
+        return lista.map((u) => (u.czesc_id === cz.id ? { ...u, ilosc: u.ilosc + ilosc } : u));
+      }
+      return [...lista, { czesc_id: cz.id, nazwa: cz.nazwa, ilosc, cena_zakupu: Number(cz.cena_zakupu ?? 0) }];
+    });
+    setWybranaCzescId("");
+    setWybranaIlosc("1");
+  }
+
+  function usunCzesc(czescId) {
+    setUzyteCzesci((lista) => lista.filter((u) => u.czesc_id !== czescId));
   }
 
   async function handleSubmit(e) {
@@ -76,15 +121,33 @@ export default function ZlecenieForm({ onClose, onSaved, zlecenie }) {
       zaplacone: form.zaplacone,
     };
 
-    const { error: zlecenieError } = zlecenie
-      ? await supabase.from("zlecenia").update(payload).eq("id", zlecenie.id)
-      : await supabase.from("zlecenia").insert(payload);
+    let zlecenieId = zlecenie?.id;
+
+    if (zlecenie) {
+      const { error: zlecenieError } = await supabase.from("zlecenia").update(payload).eq("id", zlecenie.id);
+      if (zlecenieError) {
+        setError(zlecenieError.message);
+        setSaving(false);
+        return;
+      }
+      await przywrocStanDlaZlecenia(zlecenie.id);
+    } else {
+      const { data: created, error: zlecenieError } = await supabase
+        .from("zlecenia")
+        .insert(payload)
+        .select("id")
+        .single();
+      if (zlecenieError) {
+        setError(zlecenieError.message);
+        setSaving(false);
+        return;
+      }
+      zlecenieId = created.id;
+    }
+
+    await zapiszUzyteCzesci(zlecenieId, uzyteCzesci);
 
     setSaving(false);
-    if (zlecenieError) {
-      setError(zlecenieError.message);
-      return;
-    }
     onSaved();
   }
 
@@ -130,6 +193,61 @@ export default function ZlecenieForm({ onClose, onSaved, zlecenie }) {
           onChange={(e) => update("opis", e.target.value)}
           className={inputClass}
         />
+
+        <div className="bg-neutral-800/60 rounded-xl p-3 space-y-2">
+          <label className="text-xs text-neutral-400">Użyte części zamienne</label>
+          <div className="flex gap-2">
+            <select
+              value={wybranaCzescId}
+              onChange={(e) => setWybranaCzescId(e.target.value)}
+              className={inputClass}
+            >
+              <option value="">Wybierz część...</option>
+              {dostepneCzesci.map((cz) => (
+                <option key={cz.id} value={cz.id}>
+                  {cz.nazwa} (stan: {cz.ilosc})
+                </option>
+              ))}
+            </select>
+            <input
+              type="number"
+              min="1"
+              value={wybranaIlosc}
+              onChange={(e) => setWybranaIlosc(e.target.value)}
+              className={`${inputClass} w-16 shrink-0`}
+            />
+            <button
+              type="button"
+              onClick={dodajCzesc}
+              disabled={!wybranaCzescId}
+              className="shrink-0 bg-accent hover:bg-orange-600 transition-colors rounded-lg px-3 text-sm font-medium disabled:opacity-50"
+            >
+              Dodaj
+            </button>
+          </div>
+
+          {uzyteCzesci.length > 0 && (
+            <div className="space-y-1 pt-1">
+              {uzyteCzesci.map((u) => (
+                <div key={u.czesc_id} className="flex items-center justify-between text-sm">
+                  <span className="truncate">
+                    {u.ilosc}× {u.nazwa}
+                  </span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-neutral-400">{formatPLN(u.ilosc * u.cena_zakupu)}</span>
+                    <button
+                      type="button"
+                      onClick={() => usunCzesc(u.czesc_id)}
+                      className="text-neutral-600 hover:text-red-400"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>

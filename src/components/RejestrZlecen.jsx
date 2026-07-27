@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { formatPLN, MIESIACE } from "../lib/format";
 import ZlecenieForm from "./ZlecenieForm";
+import { przywrocStanDlaZlecenia } from "../lib/czesci";
 
 function monthRange(year, month) {
   const start = new Date(Date.UTC(year, month, 1)).toISOString().slice(0, 10);
@@ -56,6 +57,7 @@ export default function RejestrZlecen() {
 
   async function deleteZlecenie(id) {
     if (!confirm("Usunąć to zlecenie?")) return;
+    await przywrocStanDlaZlecenia(id);
     await supabase.from("zlecenia").delete().eq("id", id);
     load();
   }
