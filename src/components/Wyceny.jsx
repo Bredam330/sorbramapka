@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { formatPLN } from "../lib/format";
+import DiagramBramySkrzydlowej from "./DiagramBramySkrzydlowej";
 
 const STATUSY = {
   wyslana: { label: "Wysłana", className: "bg-neutral-700 text-neutral-200" },
@@ -8,7 +9,17 @@ const STATUSY = {
   odrzucona: { label: "Odrzucona", className: "bg-red-700/30 text-red-400" },
 };
 
-const emptyForm = { telefon: "", tresc: "", kwota: "" };
+const emptyForm = {
+  telefon: "",
+  tresc: "",
+  kwota: "",
+  bramaSkrzydlowa: false,
+  wymiarA: "",
+  wymiarB: "",
+  wymiarC: "",
+  wymiarD: "",
+  kat: "",
+};
 
 export default function Wyceny() {
   const [wyceny, setWyceny] = useState([]);
@@ -57,6 +68,11 @@ export default function Wyceny() {
       klient_id: klientId,
       tresc: form.tresc.trim(),
       kwota: Number(form.kwota) || 0,
+      wymiar_a: form.bramaSkrzydlowa && form.wymiarA ? Number(form.wymiarA) : null,
+      wymiar_b: form.bramaSkrzydlowa && form.wymiarB ? Number(form.wymiarB) : null,
+      wymiar_c: form.bramaSkrzydlowa && form.wymiarC ? Number(form.wymiarC) : null,
+      wymiar_d: form.bramaSkrzydlowa && form.wymiarD ? Number(form.wymiarD) : null,
+      kat_otwarcia: form.bramaSkrzydlowa && form.kat ? Number(form.kat) : null,
     });
 
     setSaving(false);
@@ -119,6 +135,76 @@ export default function Wyceny() {
             onChange={(e) => setForm((f) => ({ ...f, kwota: e.target.value }))}
             className={inputClass}
           />
+
+          <label className="flex items-center gap-2 text-sm text-neutral-300">
+            <input
+              type="checkbox"
+              checked={form.bramaSkrzydlowa}
+              onChange={(e) => setForm((f) => ({ ...f, bramaSkrzydlowa: e.target.checked }))}
+              className="accent-accent"
+            />
+            Brama skrzydłowa — dodaj wymiary montażowe
+          </label>
+
+          {form.bramaSkrzydlowa && (
+            <div className="bg-neutral-800/60 rounded-xl p-3 space-y-3">
+              <DiagramBramySkrzydlowej
+                a={form.wymiarA}
+                b={form.wymiarB}
+                c={form.wymiarC}
+                d={form.wymiarD}
+                kat={form.kat}
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-neutral-400">A — wymiar słupka (mm)</label>
+                  <input
+                    type="number"
+                    value={form.wymiarA}
+                    onChange={(e) => setForm((f) => ({ ...f, wymiarA: e.target.value }))}
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-neutral-400">B — wysokość mocowania (mm)</label>
+                  <input
+                    type="number"
+                    value={form.wymiarB}
+                    onChange={(e) => setForm((f) => ({ ...f, wymiarB: e.target.value }))}
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-neutral-400">C — wymiar do osi ramienia (mm)</label>
+                  <input
+                    type="number"
+                    value={form.wymiarC}
+                    onChange={(e) => setForm((f) => ({ ...f, wymiarC: e.target.value }))}
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-neutral-400">D — długość ramienia (mm)</label>
+                  <input
+                    type="number"
+                    value={form.wymiarD}
+                    onChange={(e) => setForm((f) => ({ ...f, wymiarD: e.target.value }))}
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-neutral-400">α — kąt otwarcia (°)</label>
+                  <input
+                    type="number"
+                    value={form.kat}
+                    onChange={(e) => setForm((f) => ({ ...f, kat: e.target.value }))}
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={saving}
@@ -139,6 +225,12 @@ export default function Wyceny() {
               <div className="min-w-0">
                 <p className="font-medium truncate">{w.klienci?.telefon ?? "Bez klienta"}</p>
                 <p className="text-xs text-neutral-500 truncate">{w.tresc}</p>
+                {w.wymiar_a && (
+                  <p className="text-xs text-neutral-500 truncate">
+                    A {w.wymiar_a} · B {w.wymiar_b} · C {w.wymiar_c} · D {w.wymiar_d}mm
+                    {w.kat_otwarcia ? ` · α ${w.kat_otwarcia}°` : ""}
+                  </p>
+                )}
               </div>
               <span className={`text-[10px] px-2 py-1 rounded shrink-0 ${STATUSY[w.status].className}`}>
                 {STATUSY[w.status].label}
